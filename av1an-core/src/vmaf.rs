@@ -276,9 +276,7 @@ pub fn read_vmaf_file(file: impl AsRef<Path>) -> Result<Vec<f64>, serde_json::Er
 ///
 /// Do not call this function more than once on the same json file,
 /// as this function is only more efficient for a single read.
-pub fn read_weighted_vmaf<P: AsRef<Path>>(
-  file: P,
-) -> Result<f64, serde_json::Error> {
+pub fn read_weighted_vmaf<P: AsRef<Path>>(file: P) -> Result<f64, serde_json::Error> {
   fn inner(file: &Path, percentile: f64) -> Result<f64, serde_json::Error> {
     let mut scores = read_vmaf_file(file)?;
 
@@ -302,6 +300,8 @@ pub fn percentile_of_sorted(scores: &[f64], percentile: f64) -> f64 {
 }
 
 fn harmonic_mean(values: impl Iterator<Item = f64>) -> f64 {
-    let (sum, count) = values.fold((0.0, 0), |(sum, count), value| (sum + 1.0 / value, count + 1));
-    count as f64 / sum
+  let (sum, count) = values.fold((0.0, 0), |(sum, count), value| {
+    (sum + 1.0 / value, count + 1)
+  });
+  count as f64 / sum
 }

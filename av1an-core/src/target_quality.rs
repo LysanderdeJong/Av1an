@@ -44,8 +44,7 @@ impl TargetQuality {
     let middle_point = (self.min_q + self.max_q) / 2;
     let last_q = middle_point;
 
-    let mut score =
-      read_weighted_vmaf(self.vmaf_probe(chunk, last_q as usize)?).unwrap();
+    let mut score = read_weighted_vmaf(self.vmaf_probe(chunk, last_q as usize)?).unwrap();
     vmaf_cq.push((score, last_q));
 
     // Initialize search boundary
