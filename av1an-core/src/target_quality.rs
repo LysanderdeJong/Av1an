@@ -15,8 +15,6 @@ use crate::chunk::Chunk;
 use crate::vmaf::{self, read_weighted_vmaf};
 use crate::Encoder;
 
-const VMAF_PERCENTILE: f64 = 0.01;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TargetQuality {
   pub vmaf_res: String,
@@ -47,7 +45,7 @@ impl TargetQuality {
     let last_q = middle_point;
 
     let mut score =
-      read_weighted_vmaf(self.vmaf_probe(chunk, last_q as usize)?, VMAF_PERCENTILE).unwrap();
+      read_weighted_vmaf(self.vmaf_probe(chunk, last_q as usize)?).unwrap();
     vmaf_cq.push((score, last_q));
 
     // Initialize search boundary
@@ -64,7 +62,7 @@ impl TargetQuality {
     };
 
     // Edge case check
-    score = read_weighted_vmaf(self.vmaf_probe(chunk, next_q as usize)?, VMAF_PERCENTILE).unwrap();
+    score = read_weighted_vmaf(self.vmaf_probe(chunk, next_q as usize)?).unwrap();
     vmaf_cq.push((score, next_q));
 
     if (next_q == self.min_q && score < self.target)
@@ -113,7 +111,7 @@ impl TargetQuality {
         break;
       }
 
-      score = read_weighted_vmaf(self.vmaf_probe(chunk, new_point)?, VMAF_PERCENTILE).unwrap();
+      score = read_weighted_vmaf(self.vmaf_probe(chunk, new_point)?).unwrap();
       vmaf_cq.push((score, new_point as u32));
 
       // Update boundary
