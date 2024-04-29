@@ -5,6 +5,7 @@ use std::process::{Command, Stdio};
 use std::usize;
 
 use anyhow::{anyhow, Context};
+use itertools::Itertools;
 use plotters::prelude::*;
 use serde::Deserialize;
 use smallvec::SmallVec;
@@ -298,4 +299,9 @@ pub fn percentile_of_sorted(scores: &[f64], percentile: f64) -> f64 {
   let k = ((scores.len() - 1) as f64 * percentile) as usize;
 
   scores[k]
+}
+
+fn harmonic_mean(values: impl Iterator<Item = f64>) -> f64 {
+    let (sum, count) = values.fold((0.0, 0), |(sum, count), value| (sum + 1.0 / value, count + 1));
+    count as f64 / sum
 }
