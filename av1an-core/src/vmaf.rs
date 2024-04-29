@@ -277,24 +277,18 @@ pub fn read_vmaf_file(file: impl AsRef<Path>) -> Result<Vec<f64>, serde_json::Er
 /// as this function is only more efficient for a single read.
 pub fn read_weighted_vmaf<P: AsRef<Path>>(
   file: P,
-  percentile: f64,
 ) -> Result<f64, serde_json::Error> {
   fn inner(file: &Path, percentile: f64) -> Result<f64, serde_json::Error> {
     let mut scores = read_vmaf_file(file)?;
 
     assert!(!scores.is_empty());
 
-    let k = ((scores.len() - 1) as f64 * percentile) as usize;
+    let harmonic_mean = harmonic_mean(scores.iter().cloned());
 
-    // if we are just calling this function a single time for this file, it is more efficient
-    // to use select_nth_unstable_by than it is to completely sort scores
-    let (_, kth_element, _) =
-      scores.select_nth_unstable_by(k, |a, b| a.partial_cmp(b).unwrap_or(Ordering::Less));
-
-    Ok(*kth_element)
+    Ok(harmonic_mean)
   }
 
-  inner(file.as_ref(), percentile)
+  inner(file.as_ref(), 0.5)
 }
 
 /// Calculates percentile from an array of sorted values
