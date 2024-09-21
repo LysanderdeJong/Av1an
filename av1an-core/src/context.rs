@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 use std::convert::TryInto;
 use std::ffi::OsString;
 use std::fs::File;
-use std::io::Write;
+use std::io::{IsTerminal, Write};
 use std::path::{Path, PathBuf};
 use std::process::{exit, Command, Stdio};
 use std::sync::atomic::{self, AtomicBool, AtomicUsize};
@@ -258,7 +258,7 @@ impl Av1anContext {
       }
       self.args.workers = cmp::min(self.args.workers, chunk_queue.len());
 
-      if atty::is(atty::Stream::Stderr) {
+      if std::io::stderr().is_terminal() {
         eprintln!(
           "{}{} {} {}{} {} {}{} {}\n{}: {}",
           Color::Green.bold().paint("Q"),
@@ -671,7 +671,7 @@ impl Av1anContext {
     Ok(())
   }
 
-  fn create_encoding_queue(&mut self, scenes: &[Scene]) -> anyhow::Result<Vec<Chunk>> {
+  fn create_encoding_queue(&self, scenes: &[Scene]) -> anyhow::Result<Vec<Chunk>> {
     let mut chunks = match &self.args.input {
       Input::Video { .. } => match self.args.chunk_method {
         ChunkMethod::FFMS2
@@ -860,11 +860,7 @@ impl Av1anContext {
       "-i",
       src_path,
       "-vf",
-      format!(
-        "select=between(n\\,{}\\,{}),setpts=PTS-STARTPTS",
-        start_frame,
-        end_frame - 1
-      ),
+      format!("select=between(n\\,{}\\,{})", start_frame, end_frame - 1),
       "-pix_fmt",
       self
         .args
@@ -1169,7 +1165,7 @@ impl Av1anContext {
   }
 
   /// Returns unfinished chunks and number of total chunks
-  fn load_or_gen_chunk_queue(&mut self, splits: &[Scene]) -> anyhow::Result<(Vec<Chunk>, usize)> {
+  fn load_or_gen_chunk_queue(&self, splits: &[Scene]) -> anyhow::Result<(Vec<Chunk>, usize)> {
     if self.args.resume {
       let mut chunks = read_chunk_queue(self.args.temp.as_ref())?;
       let num_chunks = chunks.len();
