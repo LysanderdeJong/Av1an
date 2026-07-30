@@ -9,7 +9,7 @@ repository = "https://github.com/master-of-zen/Av1an"
 keywords = ["video"]
 categories = ["command-line-utilities"]
 license = "GPL-3.0"
-rust-version = "1.70"
+rust-version = "1.88"
 edition = "2021"
 readme = "../README.md"
 
@@ -33,7 +33,7 @@ default-features = false
 features = ["colors"]
 
 [build-dependencies.vergen-git2]
-version = "1.0.0"
+version = "1.0.3"
 features = ["build", "rustc", "cargo"]
 
 [dependencies.ffmpeg]
